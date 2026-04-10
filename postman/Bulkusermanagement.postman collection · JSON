@@ -1,0 +1,389 @@
+{
+  "info": {
+    "_postman_id": "bulk-user-mgmt-v1",
+    "name": "Bulk User Management API",
+    "description": "Complete API collection for the Bulk User Management System.\n\nBase URL: http://localhost:5000\n\nFeatures:\n- Bulk create 5,000–10,000+ users\n- Bulk update with flexible filters\n- Paginated listing with search\n- Export as JSON or BSON\n- Stats & aggregations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000", "type": "string" },
+    { "key": "userId",  "value": "",                      "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "🏥 Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "API Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "👤 Single User CRUD",
+      "item": [
+        {
+          "name": "Create Single User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.data && json.data._id) {",
+                  "  pm.collectionVariables.set('userId', json.data._id);",
+                  "  console.log('Saved userId:', json.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Venkatesh\",\n  \"lastName\": \"Reddy\",\n  \"email\": \"venkatesh.reddy@example.com\",\n  \"username\": \"venkatesh_reddy\",\n  \"password\": \"Secure@123\",\n  \"phone\": \"+91-9876543210\",\n  \"role\": \"manager\",\n  \"status\": \"active\",\n  \"department\": \"Engineering\",\n  \"jobTitle\": \"Tech Lead\",\n  \"age\": 28,\n  \"gender\": \"male\",\n  \"address\": {\n    \"street\": \"42 Banjara Hills\",\n    \"city\": \"Hyderabad\",\n    \"state\": \"Telangana\",\n    \"zip\": \"500034\",\n    \"country\": \"India\"\n  },\n  \"tags\": [\"backend\", \"nodejs\"],\n  \"isVerified\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update Single User",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobTitle\": \"Senior Tech Lead\",\n  \"department\": \"Platform Engineering\",\n  \"tags\": [\"backend\", \"nodejs\", \"mongodb\"],\n  \"isVerified\": true\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Delete Single User (Soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "📋 List & Search Users",
+      "item": [
+        {
+          "name": "List All Users (default)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&limit=20",
+              "host": ["{{baseUrl}}"], "path": ["api", "users"],
+              "query": [
+                { "key": "page",  "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter by Role & Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?role=manager&status=active&page=1&limit=50",
+              "host": ["{{baseUrl}}"], "path": ["api", "users"],
+              "query": [
+                { "key": "role",   "value": "manager" },
+                { "key": "status", "value": "active" },
+                { "key": "page",   "value": "1" },
+                { "key": "limit",  "value": "50" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter by Department",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?department=Engineering&limit=100",
+              "host": ["{{baseUrl}}"], "path": ["api", "users"],
+              "query": [
+                { "key": "department", "value": "Engineering" },
+                { "key": "limit",      "value": "100" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Text Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?search=venkatesh&limit=20",
+              "host": ["{{baseUrl}}"], "path": ["api", "users"],
+              "query": [
+                { "key": "search", "value": "venkatesh" },
+                { "key": "limit",  "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sort by createdAt Ascending",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?sort=createdAt&page=1&limit=20",
+              "host": ["{{baseUrl}}"], "path": ["api", "users"],
+              "query": [
+                { "key": "sort",  "value": "createdAt" },
+                { "key": "page",  "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🚀 Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Create — 5 Users (Sample)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batchSize\": 500,\n  \"users\": [\n    {\n      \"firstName\": \"Arjun\",\n      \"lastName\": \"Sharma\",\n      \"email\": \"arjun.sharma.001@bulk.com\",\n      \"username\": \"arjun_sharma_001\",\n      \"password\": \"BulkTest@123\",\n      \"role\": \"user\",\n      \"status\": \"active\",\n      \"department\": \"Engineering\",\n      \"jobTitle\": \"Software Engineer\",\n      \"age\": 25,\n      \"gender\": \"male\"\n    },\n    {\n      \"firstName\": \"Priya\",\n      \"lastName\": \"Nair\",\n      \"email\": \"priya.nair.002@bulk.com\",\n      \"username\": \"priya_nair_002\",\n      \"password\": \"BulkTest@123\",\n      \"role\": \"user\",\n      \"status\": \"active\",\n      \"department\": \"Marketing\",\n      \"jobTitle\": \"Marketing Manager\",\n      \"age\": 30,\n      \"gender\": \"female\"\n    },\n    {\n      \"firstName\": \"Rahul\",\n      \"lastName\": \"Gupta\",\n      \"email\": \"rahul.gupta.003@bulk.com\",\n      \"username\": \"rahul_gupta_003\",\n      \"password\": \"BulkTest@123\",\n      \"role\": \"manager\",\n      \"status\": \"active\",\n      \"department\": \"Sales\",\n      \"jobTitle\": \"Sales Manager\",\n      \"age\": 35,\n      \"gender\": \"male\"\n    },\n    {\n      \"firstName\": \"Kavya\",\n      \"lastName\": \"Reddy\",\n      \"email\": \"kavya.reddy.004@bulk.com\",\n      \"username\": \"kavya_reddy_004\",\n      \"password\": \"BulkTest@123\",\n      \"role\": \"viewer\",\n      \"status\": \"pending\",\n      \"department\": \"Design\",\n      \"jobTitle\": \"UI Designer\",\n      \"age\": 23,\n      \"gender\": \"female\"\n    },\n    {\n      \"firstName\": \"Sai\",\n      \"lastName\": \"Kumar\",\n      \"email\": \"sai.kumar.005@bulk.com\",\n      \"username\": \"sai_kumar_005\",\n      \"password\": \"BulkTest@123\",\n      \"role\": \"admin\",\n      \"status\": \"active\",\n      \"department\": \"DevOps\",\n      \"jobTitle\": \"DevOps Engineer\",\n      \"age\": 29,\n      \"gender\": \"male\"\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/bulk", "host": ["{{baseUrl}}"], "path": ["api", "users", "bulk"] }
+          }
+        },
+        {
+          "name": "Bulk Update — By Department",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operations\": [\n    {\n      \"filter\": { \"department\": \"Engineering\", \"status\": \"active\" },\n      \"update\": { \"tags\": [\"engineering\", \"active\"] }\n    },\n    {\n      \"filter\": { \"role\": \"viewer\" },\n      \"update\": { \"status\": \"active\", \"isVerified\": true }\n    },\n    {\n      \"filter\": { \"department\": \"Marketing\" },\n      \"update\": { \"jobTitle\": \"Marketing Specialist\", \"status\": \"active\" }\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/bulk", "host": ["{{baseUrl}}"], "path": ["api", "users", "bulk"] }
+          }
+        },
+        {
+          "name": "Bulk Update — By Email List",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operations\": [\n    {\n      \"filter\": { \"email\": \"arjun.sharma.001@bulk.com\" },\n      \"update\": { \"role\": \"manager\", \"isVerified\": true }\n    },\n    {\n      \"filter\": { \"email\": \"priya.nair.002@bulk.com\" },\n      \"update\": { \"department\": \"Product\", \"jobTitle\": \"Product Manager\" }\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/bulk", "host": ["{{baseUrl}}"], "path": ["api", "users", "bulk"] }
+          }
+        },
+        {
+          "name": "Bulk Delete — By Department",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filter\": {\n    \"department\": \"Sales\",\n    \"status\": \"inactive\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/bulk", "host": ["{{baseUrl}}"], "path": ["api", "users", "bulk"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "📊 Stats & Analytics",
+      "item": [
+        {
+          "name": "User Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/users/stats", "host": ["{{baseUrl}}"], "path": ["api", "users", "stats"] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "📤 Export",
+      "item": [
+        {
+          "name": "Export Stats Preview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/users/export/stats", "host": ["{{baseUrl}}"], "path": ["api", "users", "export", "stats"] }
+          }
+        },
+        {
+          "name": "Export All Users — JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/export?format=json",
+              "host": ["{{baseUrl}}"], "path": ["api", "users", "export"],
+              "query": [{ "key": "format", "value": "json" }]
+            }
+          }
+        },
+        {
+          "name": "Export All Users — BSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/export?format=bson",
+              "host": ["{{baseUrl}}"], "path": ["api", "users", "export"],
+              "query": [{ "key": "format", "value": "bson" }]
+            }
+          }
+        },
+        {
+          "name": "Export — Filter by Role (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/export?format=json&role=manager&status=active",
+              "host": ["{{baseUrl}}"], "path": ["api", "users", "export"],
+              "query": [
+                { "key": "format", "value": "json" },
+                { "key": "role",   "value": "manager" },
+                { "key": "status", "value": "active" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export — Filter by Department (BSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/export?format=bson&department=Engineering",
+              "host": ["{{baseUrl}}"], "path": ["api", "users", "export"],
+              "query": [
+                { "key": "format",     "value": "bson" },
+                { "key": "department", "value": "Engineering" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "⚠️ Error Cases",
+      "item": [
+        {
+          "name": "Invalid User ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/users/not-a-valid-id", "host": ["{{baseUrl}}"], "path": ["api", "users", "not-a-valid-id"] }
+          }
+        },
+        {
+          "name": "Create User — Missing Required Fields",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+          }
+        },
+        {
+          "name": "Create User — Invalid Email",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"not-an-email\",\n  \"username\": \"testuser123\",\n  \"password\": \"Secure@123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users", "host": ["{{baseUrl}}"], "path": ["api", "users"] }
+          }
+        },
+        {
+          "name": "Bulk Delete — Empty Filter (Should Fail)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filter\": {}\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/users/bulk", "host": ["{{baseUrl}}"], "path": ["api", "users", "bulk"] }
+          }
+        },
+        {
+          "name": "Export — Invalid Format",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/export?format=xml",
+              "host": ["{{baseUrl}}"], "path": ["api", "users", "export"],
+              "query": [{ "key": "format", "value": "xml" }]
+            }
+          }
+        },
+        {
+          "name": "404 — Unknown Route",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/unknown", "host": ["{{baseUrl}}"], "path": ["api", "unknown"] }
+          }
+        }
+      ]
+    }
+
+  ]
+}
